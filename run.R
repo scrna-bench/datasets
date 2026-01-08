@@ -15,23 +15,23 @@ parser$add_argument(
   "--name", "-n",
   dest = "name", type = "character",
   help = "name of the module",
-  required = TRUE,
+  required = TRUE
 )
 parser$add_argument(
   "--dataset_name",
-  choices = c("sc-mix"), type = "character",
+  dest = "dataset_name", type = "character",
   help = "name of the dataset",
-  required = TRUE
+  choices = c("sc-mix", "be1"), required = TRUE
 )
 
 args <- parser$parse_args()
 
-if (args$dataset_generator == "sc-mix") {
+if (args$dataset_name == "sc-mix") {
   url <- "https://github.com/LuyiTian/sc_mixology/raw/refs/heads/master/data/sincell_with_class_5cl.RData"
   bn <- basename(url)
 
   raw_path <- file.path(args$output_dir, bn)
-  h5ad_path <- file.path(args$output_dir, args$name)
+  h5ad_path <- file.path(args$output_dir, paste0(args$name, ".h5ad"))
 
   if (!file.exists(raw_path)) {
     download.file(url, destfile = raw_path)
