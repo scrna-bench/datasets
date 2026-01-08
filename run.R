@@ -3,6 +3,7 @@
 library(argparse)
 library(zellkonverter)
 library(TENxBrainData)
+library(SingleCellMultiModal)
 
 parser <- ArgumentParser(description = "Benchmarking entrypoint")
 
@@ -22,7 +23,7 @@ parser$add_argument(
   "--dataset_name",
   dest = "dataset_name", type = "character",
   help = "name of the dataset",
-  choices = c("sc-mix", "be1", "1.3m"), required = TRUE
+  choices = c("sc-mix", "be1", "cb", "1.3m"), required = TRUE
 )
 
 args <- parser$parse_args()
@@ -42,6 +43,17 @@ if (args$dataset_name == "sc-mix") {
   load(raw_path)
 
   writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path)
+} else if (args$dataset_name == "cb") {
+  sce <- CITEseq(
+    DataType = "cord_blood", modes = "*", dry.run = FALSE, version = "1.0.0",
+    DataClass = "SingleCellExperiment"
+  )
+
+  gene_m <- grep("^HUMAN_", rownames(sce), value = TRUE)
+  sce <- sce[gene_m, ]
+  rownames(sce) <- sub("^HUMAN_", "", rownames(sce))
+
+  writeH5AD(sce, file = h5ad_path)
 } else if (args$dataset_name == "1.3m") {
   sce <- TENxBrainData()
   writeH5AD(sce, file = h5ad_path)
