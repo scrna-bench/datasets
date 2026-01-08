@@ -2,6 +2,7 @@
 
 library(argparse)
 library(zellkonverter)
+library(TENxBrainData)
 
 parser <- ArgumentParser(description = "Benchmarking entrypoint")
 
@@ -21,17 +22,18 @@ parser$add_argument(
   "--dataset_name",
   dest = "dataset_name", type = "character",
   help = "name of the dataset",
-  choices = c("sc-mix", "be1"), required = TRUE
+  choices = c("sc-mix", "be1", "1.3m"), required = TRUE
 )
 
 args <- parser$parse_args()
+
+h5ad_path <- file.path(args$output_dir, paste0(args$name, ".h5ad"))
 
 if (args$dataset_name == "sc-mix") {
   url <- "https://github.com/LuyiTian/sc_mixology/raw/refs/heads/master/data/sincell_with_class_5cl.RData"
   bn <- basename(url)
 
   raw_path <- file.path(args$output_dir, bn)
-  h5ad_path <- file.path(args$output_dir, paste0(args$name, ".h5ad"))
 
   if (!file.exists(raw_path)) {
     download.file(url, destfile = raw_path)
@@ -40,4 +42,7 @@ if (args$dataset_name == "sc-mix") {
   load(raw_path)
 
   writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path)
+} else if (args$dataset_name == "1.3m") {
+  sce <- TENxBrainData()
+  writeH5AD(sce, file = h5ad_path)
 }
