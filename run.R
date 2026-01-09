@@ -42,7 +42,7 @@ if (args$dataset_name == "sc-mix") {
 
   load(raw_path)
 
-  writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path)
+  writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path, compression = "gzip")
 } else if (args$dataset_name == "cb") {
   sce <- CITEseq(
     DataType = "cord_blood", modes = "*", dry.run = FALSE, version = "1.0.0",
@@ -53,8 +53,8 @@ if (args$dataset_name == "sc-mix") {
   sce <- sce[gene_m, ]
   rownames(sce) <- sub("^HUMAN_", "", rownames(sce))
 
-  writeH5AD(sce, file = h5ad_path)
+  writeH5AD(sce, file = h5ad_path, compression = "gzip")
 } else if (args$dataset_name == "1.3m") {
   sce <- TENxBrainData()
-  writeH5AD(sce, file = h5ad_path)
+  writeH5AD(sce, file = h5ad_path, compression = "gzip")
 }
