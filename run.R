@@ -41,8 +41,8 @@ if (args$dataset_name == "sc-mix") {
   }
 
   load(raw_path)
-
   writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path, compression = "gzip")
+  file.remove(raw_path)
 } else if (args$dataset_name == "cb") {
   sce <- CITEseq(
     DataType = "cord_blood", modes = "*", dry.run = FALSE, version = "1.0.0",
