@@ -4,6 +4,7 @@ library(argparse)
 library(zellkonverter)
 library(TENxBrainData)
 library(SingleCellMultiModal)
+library(SingleCellExperiment)
 
 parser <- ArgumentParser(description = "Benchmarking entrypoint")
 
@@ -33,14 +34,13 @@ h5ad_path <- file.path(args$output_dir, paste0(args$name, ".h5ad"))
 if (args$dataset_name == "sc-mix") {
   url <- "https://github.com/LuyiTian/sc_mixology/raw/refs/heads/master/data/sincell_with_class_5cl.RData"
   bn <- basename(url)
-
   raw_path <- file.path(args$output_dir, bn)
-
   if (!file.exists(raw_path)) {
     download.file(url, destfile = raw_path)
   }
 
   load(raw_path)
+  colData(sce_sc_10x_5cl_qc)$clusters.truth <- colData(sce_sc_10x_5cl_qc)$cell_line
   writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path, compression = "gzip")
   file.remove(raw_path)
 } else if (args$dataset_name == "cb") {
@@ -52,6 +52,8 @@ if (args$dataset_name == "sc-mix") {
   gene_m <- grep("^HUMAN_", rownames(sce), value = TRUE)
   sce <- sce[gene_m, ]
   rownames(sce) <- sub("^HUMAN_", "", rownames(sce))
+
+  colData(sce)$clusters.truth <- colData(sce)$celltype
 
   writeH5AD(sce, file = h5ad_path, compression = "gzip")
 } else if (args$dataset_name == "1.3m") {
