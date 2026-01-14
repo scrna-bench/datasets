@@ -30,6 +30,9 @@ parser$add_argument(
 args <- parser$parse_args()
 
 h5ad_path <- file.path(args$output_dir, paste0(args$name, ".h5ad"))
+clusters_truth_path <- file.path(
+  args$output_dir, paste0(args$name, ".clusters_truth.tsv")
+)
 
 if (args$dataset_name == "sc-mix") {
   url <- "https://github.com/LuyiTian/sc_mixology/raw/refs/heads/master/data/sincell_with_class_5cl.RData"
@@ -40,8 +43,8 @@ if (args$dataset_name == "sc-mix") {
   }
 
   load(raw_path)
-  colData(sce_sc_10x_5cl_qc)$clusters.truth <- colData(sce_sc_10x_5cl_qc)$cell_line
-  writeH5AD(sce_sc_10x_5cl_qc, file = h5ad_path, compression = "gzip")
+  sce <- sce_sc_10x_5cl_qc
+  colData(sce)$clusters.truth <- colData(sce)$cell_line
   file.remove(raw_path)
 } else if (args$dataset_name == "cb") {
   sce <- CITEseq(
@@ -54,9 +57,16 @@ if (args$dataset_name == "sc-mix") {
   rownames(sce) <- sub("^HUMAN_", "", rownames(sce))
 
   colData(sce)$clusters.truth <- colData(sce)$celltype
-
-  writeH5AD(sce, file = h5ad_path, compression = "gzip")
 } else if (args$dataset_name == "1.3m") {
   sce <- TENxBrainData()
-  writeH5AD(sce, file = h5ad_path, compression = "gzip")
 }
+
+writeH5AD(sce, file = h5ad_path, compression = "gzip")
+write.table(
+  data.frame(
+    cell_id = colnames(sce),
+    truths = sce$clusters.truth
+  ),
+  clusters_truth_path,
+  sep = "\t", quote = F, row.names = F
+)
