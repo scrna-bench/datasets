@@ -87,6 +87,7 @@ if (args$dataset_name == "sc-mix") {
   })
   sce <- do.call(cbind, sce_list)
   file.remove(raw_dir)
+  metadata(sce) <- list()
   colData(sce)$clusters.truth <- colData(sce)$Sample
 } else if (args$dataset_name == "cb") {
   sce <- CITEseq(
