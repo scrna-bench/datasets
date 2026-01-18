@@ -5,6 +5,9 @@ library(zellkonverter)
 library(TENxBrainData)
 library(SingleCellMultiModal)
 library(SingleCellExperiment)
+library(DropletUtils)
+library(GEOquery)
+library(stringr)
 
 parser <- ArgumentParser(description = "Benchmarking entrypoint")
 
@@ -46,6 +49,45 @@ if (args$dataset_name == "sc-mix") {
   sce <- sce_sc_10x_5cl_qc
   colData(sce)$clusters.truth <- colData(sce)$cell_line
   file.remove(raw_path)
+} else if (args$dataset_name == "be1") {
+  gse_id <- "GSE243665"
+  getGEOSuppFiles(
+    GEO = gse_id,
+    baseDir = args$output_dir
+  )
+
+  raw_dir <- file.path(args$output_dir, gse_id)
+  files <- list.files(
+    raw_dir,
+    pattern = "\\.(mtx|tsv)\\.gz$", full.names = TRUE
+  )
+  samples <- unique(str_match(basename(files), "_(.*?)_")[, 2])
+
+  for (s in samples) {
+    sample_dir <- file.path(raw_dir, s)
+    dir.create(sample_dir, showWarnings = FALSE, recursive = TRUE)
+
+    s_files <- files[grepl(paste0("_", s, "_"), basename(files))]
+    file.copy(s_files, file.path(raw_dir, s), overwrite = TRUE)
+
+    for (f in s_files) {
+      bn <- basename(f)
+      new_name <- sub("^[^_]+_[^_]+_", "", bn)
+      dest <- file.path(sample_dir, new_name)
+      file.rename(f, dest)
+    }
+  }
+
+  sce_list <- lapply(samples, function(sample) {
+    read10xCounts(
+      samples = file.path(raw_dir, sample),
+      sample.names = sample,
+      col.names = TRUE
+    )
+  })
+  sce <- do.call(cbind, sce_list)
+  file.remove(raw_dir)
+  colData(sce)$clusters.truth <- colData(sce)$Sample
 } else if (args$dataset_name == "cb") {
   sce <- CITEseq(
     DataType = "cord_blood", modes = "*", dry.run = FALSE, version = "1.0.0",
