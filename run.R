@@ -59,6 +59,7 @@ if (args$dataset_name == "sc-mix") {
   colData(sce)$clusters.truth <- colData(sce)$celltype
 } else if (args$dataset_name == "1.3m") {
   sce <- TENxBrainData()
+  rownames(sce) <- rowData(sce)$Symbol
 }
 
 writeH5AD(sce, file = h5ad_path, compression = "gzip")
