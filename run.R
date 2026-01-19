@@ -117,6 +117,7 @@ if (args$dataset_name == "sc-mix") {
 
   file.remove(raw_dir)
   metadata(sce) <- list()
+  rownames(sce) <- rowData(sce)$Symbol
 
   # use sample names as ground-truth labels
   colData(sce)$clusters.truth <- colData(sce)$Sample
