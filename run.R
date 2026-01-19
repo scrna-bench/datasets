@@ -37,7 +37,21 @@ clusters_truth_path <- file.path(
   args$output_dir, paste0(args$name, ".clusters_truth.tsv")
 )
 
+make_qc_df <- function(
+  nFeature_min = NA_real_, nFeature_max = NA_real_,
+  nCount_min = NA_real_, nCount_max = NA_real_,
+  percent_mt_min = NA_real_, percent_mt_max = NA_real_
+) {
+  data.frame(
+    metric = c("nFeature", "nCount", "percent.mt"),
+    min = c(nFeature_min, nCount_min, percent_mt_min),
+    max = c(nFeature_max, nCount_max, percent_mt_max),
+    stringsAsFactors = FALSE
+  )
+}
+
 if (args$dataset_name == "sc-mix") {
+  # download processed scMixology dataset
   url <- "https://github.com/LuyiTian/sc_mixology/raw/refs/heads/master/data/sincell_with_class_5cl.RData"
   bn <- basename(url)
   raw_path <- file.path(args$output_dir, bn)
@@ -47,20 +61,26 @@ if (args$dataset_name == "sc-mix") {
 
   load(raw_path)
   sce <- sce_sc_10x_5cl_qc
-  colData(sce)$clusters.truth <- colData(sce)$cell_line
   file.remove(raw_path)
-  metadata(sce)$qc_thresholds <- list(
-    nFeature = c(min = 200, max = 6200),
-    nCount = c(max = 60000),
-    percent.mt = c(max = 10)
+
+  # use provided cell line annotations as ground-truth labels
+  colData(sce)$clusters.truth <- colData(sce)$cell_line
+
+  # suggested qc thresholds
+  metadata(sce)$qc_thresholds <- make_qc_df(
+    nFeature_min = 200, nFeature_max = 6200,
+    nCount_max = 60000,
+    percent_mt_max = 10
   )
 } else if (args$dataset_name == "be1") {
+  # download GEO files for be1
   gse_id <- "GSE243665"
   getGEOSuppFiles(
     GEO = gse_id,
     baseDir = args$output_dir
   )
 
+  # collect compressed matrix/feature/barcode files across samples
   raw_dir <- file.path(args$output_dir, gse_id)
   files <- list.files(
     raw_dir,
@@ -69,6 +89,7 @@ if (args$dataset_name == "sc-mix") {
   samples <- unique(str_match(basename(files), "_(.*?)_")[, 2])
 
   for (s in samples) {
+    # create 10x-style folders and move each sample's files into place
     sample_dir <- file.path(raw_dir, s)
     dir.create(sample_dir, showWarnings = FALSE, recursive = TRUE)
 
@@ -77,12 +98,14 @@ if (args$dataset_name == "sc-mix") {
 
     for (f in s_files) {
       bn <- basename(f)
+      # strip the GEO/sample prefix so filenames match 10x conventions
       new_name <- sub("^[^_]+_[^_]+_", "", bn)
       dest <- file.path(sample_dir, new_name)
       file.rename(f, dest)
     }
   }
 
+  # read each sample and concatenate them into a single SCE object
   sce_list <- lapply(samples, function(sample) {
     read10xCounts(
       samples = file.path(raw_dir, sample),
@@ -91,40 +114,54 @@ if (args$dataset_name == "sc-mix") {
     )
   })
   sce <- do.call(cbind, sce_list)
+
   file.remove(raw_dir)
   metadata(sce) <- list()
+
+  # use sample names as ground-truth labels
   colData(sce)$clusters.truth <- colData(sce)$Sample
-  metadata(sce)$qc_thresholds <- list(
-    nFeature = c(min = 200, max = 5000),
-    nCount = c(max = 25000),
-    percent.mt = c(max = 5)
+
+  # suggested qc thresholds
+  metadata(sce)$qc_thresholds <- make_qc_df(
+    nFeature_min = 200, nFeature_max = 5000,
+    nCount_max = 25000,
+    percent_mt_max = 5
   )
 } else if (args$dataset_name == "cb") {
+  # load Cord blood CITEseq data
   sce <- CITEseq(
     DataType = "cord_blood", modes = "*", dry.run = FALSE, version = "1.0.0",
     DataClass = "SingleCellExperiment"
   )
 
+  # keep human genes and drop the "HUMAN_" prefix for consistency
   gene_m <- grep("^HUMAN_", rownames(sce), value = TRUE)
   sce <- sce[gene_m, ]
   rownames(sce) <- sub("^HUMAN_", "", rownames(sce))
 
+  # use provided celltype annotations as ground-truth labels
   colData(sce)$clusters.truth <- colData(sce)$celltype
-  metadata(sce)$qc_thresholds <- list(
-    nFeature = c(min = 200, max = 2500),
-    nCount = c(max = 4000),
-    percent.mt = c(max = 5)
+
+  # suggested qc thresholds
+  metadata(sce)$qc_thresholds <- make_qc_df(
+    nFeature_min = 200, nFeature_max = 2500,
+    nCount_max = 4000,
+    percent_mt_max = 5
   )
 } else if (args$dataset_name == "1.3m") {
+  # fetch 10x 1.3M data
   sce <- TENxBrainData()
   rownames(sce) <- rowData(sce)$Symbol
-  metadata(sce)$qc_thresholds <- list(
-    nFeature = c(min = 200, max = 2500),
-    nCount = c(max = 4000),
-    percent.mt = c(max = 5)
+
+  # suggested qc thresholds
+  metadata(sce)$qc_thresholds <- make_qc_df(
+    nFeature_min = 200, nFeature_max = 2500,
+    nCount_max = 4000,
+    percent_mt_max = 5
   )
 }
 
+# write outputs
 writeH5AD(sce, file = h5ad_path, compression = "gzip")
 write.table(
   data.frame(
