@@ -155,6 +155,10 @@ if (args$dataset_name == "sc-mix") {
   sce <- TENxBrainData()
   rownames(sce) <- rowData(sce)$Symbol
 
+  # cluster labels are set to the library index for the full pipeline to run
+  # the ARIs computed from this dataset do not have any biological significance
+  colData(sce)$clusters.truth <- colData(sce)$Library
+
   # suggested qc thresholds
   metadata(sce)$qc_thresholds <- make_qc_df(
     nFeature_min = 200, nFeature_max = 2500,
