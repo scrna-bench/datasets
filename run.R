@@ -49,6 +49,11 @@ if (args$dataset_name == "sc-mix") {
   sce <- sce_sc_10x_5cl_qc
   colData(sce)$clusters.truth <- colData(sce)$cell_line
   file.remove(raw_path)
+  metadata(sce)$qc_thresholds <- list(
+    nFeature = c(min = 200, max = 6200),
+    nCount = c(max = 60000),
+    percent.mt = c(max = 10)
+  )
 } else if (args$dataset_name == "be1") {
   gse_id <- "GSE243665"
   getGEOSuppFiles(
@@ -89,6 +94,11 @@ if (args$dataset_name == "sc-mix") {
   file.remove(raw_dir)
   metadata(sce) <- list()
   colData(sce)$clusters.truth <- colData(sce)$Sample
+  metadata(sce)$qc_thresholds <- list(
+    nFeature = c(min = 200, max = 5000),
+    nCount = c(max = 25000),
+    percent.mt = c(max = 5)
+  )
 } else if (args$dataset_name == "cb") {
   sce <- CITEseq(
     DataType = "cord_blood", modes = "*", dry.run = FALSE, version = "1.0.0",
@@ -100,9 +110,19 @@ if (args$dataset_name == "sc-mix") {
   rownames(sce) <- sub("^HUMAN_", "", rownames(sce))
 
   colData(sce)$clusters.truth <- colData(sce)$celltype
+  metadata(sce)$qc_thresholds <- list(
+    nFeature = c(min = 200, max = 2500),
+    nCount = c(max = 4000),
+    percent.mt = c(max = 5)
+  )
 } else if (args$dataset_name == "1.3m") {
   sce <- TENxBrainData()
   rownames(sce) <- rowData(sce)$Symbol
+  metadata(sce)$qc_thresholds <- list(
+    nFeature = c(min = 200, max = 2500),
+    nCount = c(max = 4000),
+    percent.mt = c(max = 5)
+  )
 }
 
 writeH5AD(sce, file = h5ad_path, compression = "gzip")
