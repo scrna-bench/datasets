@@ -115,9 +115,10 @@ if (args$dataset_name == "sc-mix") {
   })
   sce <- do.call(cbind, sce_list)
 
-  file.remove(raw_dir)
+  unlink(raw_dir, recursive = TRUE)
   metadata(sce) <- list()
   rownames(sce) <- rowData(sce)$Symbol
+  rownames(sce) <- make.unique(rownames(sce))
 
   # use sample names as ground-truth labels
   colData(sce)$clusters.truth <- colData(sce)$Sample
