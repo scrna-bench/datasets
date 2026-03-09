@@ -36,6 +36,9 @@ h5ad_path <- file.path(args$output_dir, paste0(args$name, ".h5ad"))
 clusters_truth_path <- file.path(
   args$output_dir, paste0(args$name, ".clusters_truth.tsv")
 )
+num_clusters_truth_path <- file.path(
+  args$output_dir, paste0(args$name, ".clusters_truth_num.txt")
+)
 
 make_qc_df <- function(
   nFeature_min = NA_real_, nFeature_max = NA_real_,
@@ -167,6 +170,9 @@ if (args$dataset_name == "sc-mix") {
   )
 }
 
+# filter NA annotated cells
+sce <- sce[, !is.na(colData(sce)$clusters.truth)]
+
 # write outputs
 writeH5AD(sce, file = h5ad_path, compression = "gzip")
 write.table(
@@ -175,5 +181,7 @@ write.table(
     truths = sce$clusters.truth
   ),
   clusters_truth_path,
-  sep = "\t", quote = F, row.names = F
+  sep = "\t", quote = FALSE, row.names = FALSE
 )
+clusters_truth_num <- length(unique(sce$clusters.truth))
+writeLines(as.character(clusters_truth_num), con = num_clusters_truth_path)
