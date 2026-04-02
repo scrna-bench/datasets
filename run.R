@@ -1,7 +1,7 @@
 #!/usr/bin/env Rscript
 
 library(argparse)
-library(zellkonverter)
+library(anndataR)
 library(TENxBrainData)
 library(SingleCellMultiModal)
 library(SingleCellExperiment)
@@ -174,7 +174,7 @@ if (args$dataset_name == "sc-mix") {
 sce <- sce[, !is.na(colData(sce)$clusters.truth)]
 
 # write outputs
-writeH5AD(sce, file = h5ad_path, compression = "gzip")
+write_h5ad(sce, h5ad_path)
 write.table(
   data.frame(
     cell_id = colnames(sce),
