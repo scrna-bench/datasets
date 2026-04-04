@@ -1,8 +1,5 @@
 #!/usr/bin/env Rscript
 
-# this is hacky!
-BiocManager::install("anndataR", quiet = TRUE)
-
 library(argparse)
 library(anndataR)
 library(TENxBrainData)
