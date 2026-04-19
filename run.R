@@ -168,10 +168,6 @@ if (args$dataset_name == "sc-mix") {
     nCount_max = 4000,
     percent_mt_max = 5
   )
-  set.seed(1000000)
-  s <- sample(ncol(sce), 40000)
-  sce <- sce[,s]
-
 }
 
 # filter NA annotated cells
