@@ -171,7 +171,18 @@ if (args$dataset_name == "sc-mix") {
   set.seed(2026)
   s <- sample(ncol(sce), 200000)
   sce <- sce[,s]
+} else if (args$dataset_name == "pbmc68k") {
+  BiocManager::install("TENxPBMCData", ask=FALSE)
+  sce <- TENxPBMCData(dataset = "pbmc68k")
+  rownames(sce) <- rowData(sce)$Symbol
+  colData(sce)$clusters.truth <- colData(sce)$Library
+  metadata(sce)$qc_thresholds <- make_qc_df(
+    nFeature_min = 200, nFeature_max = 2500,
+    nCount_max = 4000,
+    percent_mt_max = 5
+  )
 }
+
 
 # filter NA annotated cells
 sce <- sce[, !is.na(colData(sce)$clusters.truth)]
