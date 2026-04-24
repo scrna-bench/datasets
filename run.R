@@ -179,6 +179,7 @@ if (args$dataset_name == "sc-mix") {
   library(TENxPBMCData)
   sce <- TENxPBMCData(dataset = "pbmc68k")
   rownames(sce) <- paste0(rowData(sce)$Symbol,".",seq_len(nrow(sce)))
+  colnames(sce) <- paste0(sce$Sample,".",sce$Barcode)
   colData(sce)$clusters.truth <- colData(sce)$Library
   metadata(sce)$qc_thresholds <- make_qc_df(
     nFeature_min = 200, nFeature_max = 2500,
