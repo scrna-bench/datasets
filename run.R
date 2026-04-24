@@ -178,7 +178,7 @@ if (args$dataset_name == "sc-mix") {
   BiocManager::install("TENxPBMCData", ask=FALSE, lib="./libs")
   library(TENxPBMCData)
   sce <- TENxPBMCData(dataset = "pbmc68k")
-  rownames(sce) <- rowData(sce)$Symbol
+  rownames(sce) <- paste0(rowData(sce)$Symbol,".",seq_len(nrow(sce)))
   colData(sce)$clusters.truth <- colData(sce)$Library
   metadata(sce)$qc_thresholds <- make_qc_df(
     nFeature_min = 200, nFeature_max = 2500,
