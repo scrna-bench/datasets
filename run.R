@@ -172,7 +172,10 @@ if (args$dataset_name == "sc-mix") {
   s <- sample(ncol(sce), 200000)
   sce <- sce[,s]
 } else if (args$dataset_name == "pbmc68k") {
-  BiocManager::install("TENxPBMCData", ask=FALSE)
+  # very hacky
+  system("mkdir -p libs")
+  .libPaths("./libs")
+  BiocManager::install("TENxPBMCData", ask=FALSE, lib="./libs")
   sce <- TENxPBMCData(dataset = "pbmc68k")
   rownames(sce) <- rowData(sce)$Symbol
   colData(sce)$clusters.truth <- colData(sce)$Library
