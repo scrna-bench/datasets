@@ -27,7 +27,7 @@ parser$add_argument(
   "--dataset_name",
   dest = "dataset_name", type = "character",
   help = "name of the dataset",
-  choices = c("sc-mix", "be1", "cb", "1.3m"), required = TRUE
+  choices = c("sc-mix", "be1", "cb", "1.3m", "pbmc68k"), required = TRUE
 )
 
 args <- parser$parse_args()
