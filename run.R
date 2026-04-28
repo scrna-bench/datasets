@@ -1,13 +1,15 @@
 #!/usr/bin/env Rscript
 
-library(argparse)
-library(zellkonverter)
-library(TENxBrainData)
-library(SingleCellMultiModal)
-library(SingleCellExperiment)
-library(DropletUtils)
-library(GEOquery)
-library(stringr)
+suppressPackageStartupMessages({
+  library(argparse)
+  library(anndataR)
+  library(TENxBrainData)
+  library(SingleCellMultiModal)
+  library(SingleCellExperiment)
+  library(DropletUtils)
+  library(GEOquery)
+  library(stringr)
+})
 
 parser <- ArgumentParser(description = "Benchmarking entrypoint")
 
@@ -174,7 +176,7 @@ if (args$dataset_name == "sc-mix") {
 sce <- sce[, !is.na(colData(sce)$clusters.truth)]
 
 # write outputs
-writeH5AD(sce, file = h5ad_path, compression = "gzip")
+write_h5ad(as_AnnData(sce), h5ad_path, compression = "gzip")
 write.table(
   data.frame(
     cell_id = colnames(sce),
