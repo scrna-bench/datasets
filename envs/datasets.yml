@@ -1,0 +1,15 @@
+name: datasets
+channels:
+- conda-forge
+- bioconda
+- https://prefix.dev/almost-conductor
+- nodefaults
+dependencies:
+- r-argparse >=2
+- r-stringr *
+- bioconductor-anndatar >=1.0.2,<2
+- bioconductor-tenxbraindata *
+- bioconductor-singlecellmultimodal *
+- bioconductor-singlecellexperiment *
+- bioconductor-dropletutils *
+- bioconductor-geoquery *
