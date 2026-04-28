@@ -1,0 +1,23 @@
+[workspace]
+authors = ["ben <ben.uzh@proton.me>", "..."]
+channels = ["conda-forge", "bioconda", "https://prefix.dev/almost-conductor"]
+name = "datasets"
+platforms = ["linux-64"]
+version = "0.1.0"
+
+[activation]
+scripts = ["activate.sh"]
+
+[tasks]
+check = "Rscript test.R"
+export-env = "pixi workspace export conda-environment --name $(basename $(git rev-parse --show-toplevel)) envs/datasets.yml"
+
+[dependencies]
+r-argparse = ">=2"
+r-stringr = "*"
+bioconductor-anndatar = ">=1.0.2,<2"
+bioconductor-tenxbraindata = "*"
+bioconductor-singlecellmultimodal = "*"
+bioconductor-singlecellexperiment = "*"
+bioconductor-dropletutils = "*"
+bioconductor-geoquery = "*"

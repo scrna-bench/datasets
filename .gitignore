@@ -50,6 +50,13 @@ Thumbs.db
 # Logs
 *.log
 
+# R
+.RData
+.Rhistory
+
 # Temporary files
 *.tmp
 *.temp
+# pixi environments
+.pixi/*
+!.pixi/config.toml
