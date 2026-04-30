@@ -4,7 +4,7 @@
 # https://github.com/scrna-bench/datasets/tree/use-anndatar
 
 library(argparse)
-library(zellkonverter)
+library(anndataR)
 library(TENxBrainData)
 library(SingleCellMultiModal)
 library(SingleCellExperiment)
@@ -55,6 +55,9 @@ make_qc_df <- function(
     stringsAsFactors = FALSE
   )
 }
+
+
+write("loading datasets ..", stderr())
 
 if (args$dataset_name == "sc-mix") {
   # download processed scMixology dataset
@@ -173,11 +176,15 @@ if (args$dataset_name == "sc-mix") {
   )
 }
 
+write("filtering NA ground truth ..", stderr())
+
 # filter NA annotated cells
 sce <- sce[, !is.na(colData(sce)$clusters.truth)]
 
 # write outputs
-writeH5AD(sce, file = h5ad_path, compression = "gzip")
+write("writing h5ad ..", stderr())
+write_h5ad(sce, h5ad_path)
+write("writing clusters df ..", stderr())
 write.table(
   data.frame(
     cell_id = colnames(sce),
@@ -187,4 +194,5 @@ write.table(
   sep = "\t", quote = FALSE, row.names = FALSE
 )
 clusters_truth_num <- length(unique(sce$clusters.truth))
+write("writing cluster number ..", stderr())
 writeLines(as.character(clusters_truth_num), con = num_clusters_truth_path)
