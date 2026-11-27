@@ -1,0 +1,23 @@
+[project]
+name = "datasets"
+r_version = "4.5"
+
+repositories = [
+  { alias = "PPM", url = "https://packagemanager.posit.co/cran/latest" },
+  { alias = "BioCsoft", url = "https://bioconductor.org/packages/3.22/bioc" },
+  { alias = "BioCann", url = "https://bioconductor.org/packages/3.22/data/annotation" },
+  { alias = "BioCexp", url = "https://bioconductor.org/packages/3.22/data/experiment" },
+  { alias = "omnibenchmark", url = "https://omnibenchmark.r-universe.dev" },
+]
+
+dependencies = [
+  "SingleCellExperiment",
+  "anndataR",
+  "rhdf5",
+  "obkit",
+  "jsonlite",
+  "GEOquery",
+  "DropletUtils",
+  "SingleCellMultiModal",
+  "TENxBrainData",
+]

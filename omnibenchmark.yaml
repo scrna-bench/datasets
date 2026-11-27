@@ -1,2 +1,5 @@
 entrypoints:
-  default: run.R
+  sc_mix: datasets/sc_mix.R
+  be1: datasets/be1.R
+  cb: datasets/cb.R
+  tenx_1_3m: datasets/tenx_1_3m.R
